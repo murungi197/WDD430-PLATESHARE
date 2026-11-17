@@ -36,8 +36,10 @@ recommendation.
 
 For production, set `DATABASE_URL`, `BETTER_AUTH_URL`, and a unique
 `BETTER_AUTH_SECRET` in the deployment environment, then run `npm run db:deploy`
-as a migration step. Do not use the development credentials from `.env.example`
-in a deployed environment.
+as a migration step. `npm run build` generates Prisma Client before building
+Next.js, so the deployment build does not depend on a locally generated client.
+Do not use the development credentials from `.env.example` in a deployed
+environment.
 
 ## Validation
 

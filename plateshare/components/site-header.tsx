@@ -15,11 +15,11 @@ export function SiteHeader() {
             aria-hidden="true"
             className="flex size-10 items-center justify-center rounded-full bg-emerald-800 text-lg font-bold text-white"
           >
-            P
+            PS
           </span>
           <span>
             <span className="block text-lg font-bold leading-tight tracking-tight text-emerald-950">
-              PlateShare
+              PLATESHARE
             </span>
             <span className="hidden text-xs text-slate-500 sm:block">
               Good food, shared locally
