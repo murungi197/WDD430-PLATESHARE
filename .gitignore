@@ -148,4 +148,6 @@ vite.config.ts.timestamp-*
 # Turbo Repo
 .turbo
 .vercel
-.env*
+.env
+.env.example
+
