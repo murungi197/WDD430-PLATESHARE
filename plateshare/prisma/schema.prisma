@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ListingCategory {
+  PRODUCE
+  BAKERY
+  DAIRY
+  PANTRY
+  PREPARED
+  OTHER
+}
+
+enum ListingStatus {
+  AVAILABLE
+  CLAIMED
+  REMOVED
+}
+
+enum ClaimStatus {
+  ACTIVE
+  CANCELLED
+  COMPLETED
+}
+
+model Member {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  listings      Listing[]
+  claims        Claim[]
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      Member   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  Member    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+model RateLimit {
+  key         String @id
+  count       Int
+  lastRequest BigInt
+}
+
+model Listing {
+  id                 String          @id @default(cuid())
+  ownerId            String
+  title              String
+  description        String
+  category           ListingCategory
+  quantity           String
+  foodDetails        String
+  allergenInfo       String
+  imageUrl           String?
+  pickupStartsAt     DateTime
+  pickupEndsAt       DateTime
+  pickupAddress      String
+  pickupInstructions String?
+  status             ListingStatus   @default(AVAILABLE)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  owner              Member          @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  claims             Claim[]
+
+  @@index([status, pickupEndsAt, category])
+  @@index([pickupStartsAt])
+}
+
+model Claim {
+  id         String      @id @default(cuid())
+  listingId  String
+  claimantId String
+  status     ClaimStatus @default(ACTIVE)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  listing    Listing     @relation(fields: [listingId], references: [id], onDelete: Restrict)
+  claimant   Member      @relation(fields: [claimantId], references: [id], onDelete: Restrict)
+
+  @@index([claimantId, status])
+  @@index([listingId, status])
+}
